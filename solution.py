@@ -43,8 +43,8 @@ class Ball:
         pygame.draw.circle(win, self.COLOR, (self.x, self.y), self.radius)
 
     def move(self):
-        self.x = self.x_vel
-        self.y = self.y_vel
+        self.x += self.x_vel
+        self.y += self.y_vel
 
 
 def draw(win, paddles, ball):
@@ -93,6 +93,7 @@ def main():
                 break
         keys = pygame.key.get_pressed()
         handle_paddle_movement(keys, left_paddle,right_paddle)
+        ball.move()
     
     pygame.quit()
 
