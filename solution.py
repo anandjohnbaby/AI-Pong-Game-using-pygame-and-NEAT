@@ -10,7 +10,7 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
-BALL_RADIUS = 7
+BALL_RADIUS = 10
 class Paddle:
     COLOR = WHITE
     VEL = 4
@@ -61,15 +61,43 @@ def draw(win, paddles, ball):
     pygame.display.update()
 
 
+def handle_collision(ball, left_paddle, right_paddle):
+    if ball.y + ball.radius >= HEIGHT:
+        ball.y_vel *= -1
+    elif ball.y - ball.radius <= 0:
+        ball.y_vel *= -1
+    
+    if ball.x_vel < 0:
+        if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
+            if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+                ball.x_vel *= -1
+
+                middle_y = left_paddle.y + left_paddle.height / 2
+                difference_in_y = middle_y - ball.y
+                reduction_factor = (left_paddle.height / 2) / ball.MAX_VEL
+                y_vel = difference_in_y / reduction_factor
+                ball.y_vel = -1 * y_vel
+    else:
+        if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
+            if ball.x + ball.radius >= right_paddle.x:
+                ball.x_vel *= -1
+
+                middle_y = right_paddle.y + right_paddle.height / 2
+                difference_in_y = middle_y - ball.y
+                reduction_factor = (right_paddle.height / 2) / ball.MAX_VEL
+                y_vel = difference_in_y / reduction_factor
+                ball.y_vel = -1 * y_vel
+
+
 def handle_paddle_movement(keys, left_paddle, right_paddle):
-    if keys[pygame.K_w] and left_paddle.y - left_paddle.VEL >= 0:##############################################################
+    if keys[pygame.K_w] and left_paddle.y - left_paddle.VEL >= 0: #condition to check paddle doent move above the screen
         left_paddle.move(up=True)
-    if keys[pygame.K_s] and left_paddle.y - left_paddle.VEL + left_paddle.height <= HEIGHT:####################################
+    if keys[pygame.K_s] and left_paddle.y - left_paddle.VEL + left_paddle.height <= HEIGHT:#condition to check paddle doent move below the scree
         left_paddle.move(up=False)
 
     if keys[pygame.K_UP] and right_paddle.y - right_paddle.VEL >= 0:
-        right_paddle.move(up=True)#############################################################################################
-    if keys[pygame.K_DOWN] and right_paddle.y - right_paddle.VEL + left_paddle.height <= HEIGHT:###############################
+        right_paddle.move(up=True)
+    if keys[pygame.K_DOWN] and right_paddle.y - right_paddle.VEL + left_paddle.height <= HEIGHT:
         right_paddle.move(up=False)
 
 
@@ -92,8 +120,10 @@ def main():
                 run = False
                 break
         keys = pygame.key.get_pressed()
-        handle_paddle_movement(keys, left_paddle,right_paddle)
+        handle_paddle_movement(keys, left_paddle, right_paddle)
+
         ball.move()
+        handle_collision(ball, left_paddle, right_paddle)
     
     pygame.quit()
 
